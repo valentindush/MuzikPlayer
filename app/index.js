@@ -4,6 +4,7 @@ import ScreenHeaderBtn from "../components/header/screenHeadeBtn"
 
 import tw from 'twrnc'
 import { COLORS, icons } from "../constants"
+import RecentMedia from "../components/main/recentMedia"
 
 const Home = () => {
 
@@ -41,7 +42,7 @@ const Home = () => {
             />
 
             <ScrollView showsVerticalScrollIndicator={false}>
-                
+                <RecentMedia />    
             </ScrollView>
         </SafeAreaView>
     )
