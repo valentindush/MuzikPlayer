@@ -1,4 +1,4 @@
-import { ScrollView, FlatList, SafeAreaView, View, TextInput } from 'react-native'
+import { ScrollView, FlatList, SafeAreaView, View, TextInput, TouchableOpacity } from 'react-native'
 import { useState, useEffect } from 'react'
 import SongItem from "../common/songItem";
 import * as MediaLibrary from 'expo-media-library';
@@ -6,12 +6,16 @@ import tw from 'twrnc'
 import DText from '../common/customText';
 import { Path, Svg } from 'react-native-svg';
 import { FAB } from "react-native-paper";
+import {Audio} from 'expo-av'
 
 const MusicList = () => {
 
 
     const [media, setMedia] = useState([])
     const [activeItem, setActiveItem] = useState(null)
+    const [sound, setSound] = useState(null);
+    const [playing ,setPlaying] = useState(false)
+
 
     const requestPermission = async () => {
         const a = await MediaLibrary.requestPermissionsAsync()
@@ -31,7 +35,41 @@ const MusicList = () => {
 
 
     const playSong = async (song) => {
+
+        if(playing && activeItem.filename === song.filename){
+            stopPlaying()
+            return
+        }
+
+        if(activeItem.filename !== song.filename){
+            await sound.stopAsync()
+        }
+
         setActiveItem(song)
+        const {sound} = await Audio.Sound.createAsync({uri: song.uri})
+        setSound(sound)
+        setPlaying(true)
+
+        await sound.playAsync()
+
+    }
+
+    const stopPlaying = async () => {
+        setPlaying(false)
+        await sound.stopAsync()
+    }
+
+    // useEffect(() => {
+    //     return sound
+    //       ? () => {
+    //           console.log('Unloading Sound');
+    //           sound.unloadAsync();
+    //         }
+    //       : undefined;
+    //   }, [sound]);
+
+    const handlePlayOrPause = () => {
+
     }
 
     return (
@@ -69,9 +107,22 @@ const MusicList = () => {
             </View>
             <FAB
                 style={{
-                    ...tw`absolute bottom-4 right-4 w-12 h-12 rounded-full bg-[#6E26A7]`,
+                    ...tw`absolute bottom-4 right-4 w-[4rem] h-[4rem] rounded-3xl bg-[#6E26A7]`,
                 }}
-                icon={'play'} 
+                icon={()=>(
+                    <TouchableOpacity style={tw`mx-auto w-full h-full`} onPress={handlePlayOrPause}>
+                        {playing?
+                        <Svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <Path d="M13.3333 5.33334H8V26.6667H13.3333V5.33334Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <Path d="M24 5.33334H18.6667V26.6667H24V5.33334Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </Svg>:
+                        <Svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <Path d="M6.66666 4L25.3333 16L6.66666 28V4Z" fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </Svg>
+                        
+                        }
+                    </TouchableOpacity>
+                )} 
             />
         </SafeAreaView>
     )
