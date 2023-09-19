@@ -34,32 +34,21 @@ const MusicList = () => {
 
 
     const playSong = async (song) => {
-
-        if(playing && activeItem.filename === song.filename){
-            console.log("same song")
-            if(sound){
-                await sound.stopAsync()
-                await sound.unloadAsync()
+        setActiveItem(song)
+        if (playing) {
+            if(song.uri == activeItem.uri){
+                await sound.unloadAsync();
+                setActiveItem(null)
                 setPlaying(false)
                 return
             }
         }
-
-        if(playing && activeItem.filename !== song.filename){
-    
-            await sound.stopAsync()
-            await sound.unloadAsync()
-            setPlaying(false)
-          
-        }
-
-        setActiveItem(song)
-        const {sound} = await Audio.Sound.createAsync({uri: song.uri})
-        setSound(sound)
+        const { sound: newSound } = await Audio.Sound.createAsync(
+            { uri: song.uri },
+            { shouldPlay: true }
+        );
+        setSound(newSound);
         setPlaying(true)
-
-        await sound.playAsync()
-
     }
 
     const stopPlaying = async () => {
@@ -71,6 +60,15 @@ const MusicList = () => {
     const handlePlayOrPause = () => {
 
     }
+
+    useEffect(() => {
+        return sound
+          ? () => {
+              console.log('Unloading Sound');
+              sound.unloadAsync();
+            }
+          : undefined;
+      }, [sound]);
 
     return (
         <SafeAreaView style={tw`h-[63%] px-2`}>
@@ -93,6 +91,7 @@ const MusicList = () => {
                 <ScrollView style={tw`h-full mt-2`} showsVerticalScrollIndicator={false}>
                     <FlatList
                         data={media}
+                        style={tw`pb-4`}
                         renderItem={({ item }) => (
                             <SongItem song={item} active={activeItem?.filename == item.filename? true:false} pressHandler={playSong} />
                         )}

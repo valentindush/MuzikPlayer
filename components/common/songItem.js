@@ -18,7 +18,7 @@ const SongItem = ({song, pressHandler, active})=>{
     }
 
     return(
-        <View style={tw`p-4 flex-row items-center justify-between p-4 mt-2 bg-[#F2EBF8] rounded-xl border border-gray-300 `}>
+        <View style={tw`p-4 flex-row items-center justify-between p-4 mt-2 bg-gray-100 rounded-xl border border-gray-300 `}>
             <View style={tw`flex-row items-center gap`}>
                 <TouchableOpacity onPress={()=>pressHandler(song)}>
                     {!active?
