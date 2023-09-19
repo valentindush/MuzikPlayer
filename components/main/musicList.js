@@ -12,7 +12,7 @@ const MusicList = () => {
 
 
     const [media, setMedia] = useState([])
-    const [activeItem, setActiveItem] = useState()
+    const [activeItem, setActiveItem] = useState(null)
     const [sound, setSound] = useState(null);
     const [playing ,setPlaying] = useState(false)
 
@@ -53,12 +53,21 @@ const MusicList = () => {
 
     const stopPlaying = async () => {
         setPlaying(false)
+        setActiveItem(null)
         await sound.stopAsync()
     }
 
 
     const handlePlayOrPause = () => {
-
+        if (playing) {
+            stopPlaying()
+        } else {
+            if (activeItem) {
+                playSong(activeItem)
+            } else {
+                playSong(media[Math.floor(Math.random() * media.length)])
+            }
+        }
     }
 
     useEffect(() => {
@@ -108,8 +117,9 @@ const MusicList = () => {
                 style={{
                     ...tw`absolute bottom-4 right-4 w-[4rem] h-[4rem] rounded-3xl bg-[#6E26A7]`,
                 }}
+                onPress={handlePlayOrPause}
                 icon={()=>(
-                    <TouchableOpacity style={tw`mx-auto w-full h-full`} onPress={handlePlayOrPause}>
+                    <TouchableOpacity style={tw`mx-auto w-full h-full`}>
                         {playing?
                         <Svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <Path d="M13.3333 5.33334H8V26.6667H13.3333V5.33334Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
