@@ -12,7 +12,7 @@ const MusicList = () => {
 
 
     const [media, setMedia] = useState([])
-    const [activeItem, setActiveItem] = useState(null)
+    const [activeItem, setActiveItem] = useState()
     const [sound, setSound] = useState(null);
     const [playing ,setPlaying] = useState(false)
 
@@ -24,7 +24,6 @@ const MusicList = () => {
 
     const readFiles = async () => {
         const audioAssets = await MediaLibrary.getAssetsAsync({ mediaType: 'audio' })
-        setActiveItem(audioAssets.assets[0])
         setMedia(audioAssets.assets)
     }
 
@@ -37,12 +36,21 @@ const MusicList = () => {
     const playSong = async (song) => {
 
         if(playing && activeItem.filename === song.filename){
-            stopPlaying()
-            return
+            console.log("same song")
+            if(sound){
+                await sound.stopAsync()
+                await sound.unloadAsync()
+                setPlaying(false)
+                return
+            }
         }
 
-        if(activeItem.filename !== song.filename){
+        if(playing && activeItem.filename !== song.filename){
+    
             await sound.stopAsync()
+            await sound.unloadAsync()
+            setPlaying(false)
+          
         }
 
         setActiveItem(song)
@@ -59,14 +67,6 @@ const MusicList = () => {
         await sound.stopAsync()
     }
 
-    // useEffect(() => {
-    //     return sound
-    //       ? () => {
-    //           console.log('Unloading Sound');
-    //           sound.unloadAsync();
-    //         }
-    //       : undefined;
-    //   }, [sound]);
 
     const handlePlayOrPause = () => {
 
@@ -94,7 +94,7 @@ const MusicList = () => {
                     <FlatList
                         data={media}
                         renderItem={({ item }) => (
-                            <SongItem song={item} active={activeItem.filename == item.filename? true:false} pressHandler={playSong} />
+                            <SongItem song={item} active={activeItem?.filename == item.filename? true:false} pressHandler={playSong} />
                         )}
 
                         keyExtractor={item => item.id}
